@@ -1,0 +1,35 @@
+#pragma once
+#include "Graphics.h"
+#include "RectI.h"
+
+class MemeField
+{
+private:
+	class Tile
+	{
+	public:
+		enum class State
+		{
+			Hidden,
+			Flagged,
+			Revealed
+		};
+	public:
+		void Draw(const Vei2& screenPos, Graphics& gfx) const;
+		bool HasMeme();
+		void SpawnMeme();
+	private:
+		State state = State::Hidden;
+		bool hasMeme = false;
+	};
+public:
+	MemeField(int numberMemes);
+	void Draw(Graphics& gfx) const ;
+private:
+	Tile& TileAt(const Vei2& gridPos);
+	RectI GetRect() const;
+private:
+	static constexpr int nTilesAcross = 20;
+	static constexpr int nTilesDown = 16;
+	Tile field[nTilesAcross * nTilesDown];
+};
