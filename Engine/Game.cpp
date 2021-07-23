@@ -39,9 +39,17 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
-	if (wnd.mouse.LeftIsPressed())
+	while (!wnd.mouse.IsEmpty())
 	{
-		field.OnRevealClick(Vei2(wnd.mouse.GetPos().first, wnd.mouse.GetPos().second));
+		const auto e = wnd.mouse.Read();
+		if (e.GetType() == Mouse::Event::Type::LPress)
+		{
+			field.OnRevealClick(Vei2(wnd.mouse.GetPos().first, wnd.mouse.GetPos().second));
+		}
+		else if (e.GetType() == Mouse::Event::Type::RPress)
+		{
+			field.OnFlagClick(Vei2(wnd.mouse.GetPos().first, wnd.mouse.GetPos().second));
+		}
 	}
 }
 

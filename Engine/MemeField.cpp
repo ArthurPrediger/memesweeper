@@ -51,6 +51,23 @@ bool MemeField::Tile::IsRevealed() const
 	return state == State::Revealed;
 }
 
+void MemeField::Tile::ToggleFlag()
+{
+	assert(state == State::Hidden);
+	state = State::Flagged;
+}
+
+void MemeField::Tile::UntoggleFlag()
+{
+	assert(state == State::Flagged);
+	state = State::Hidden;
+}
+
+bool MemeField::Tile::IsFlagged() const
+{
+	return state == State::Flagged;
+}
+
 MemeField::MemeField(int numberMemes)
 {
 	assert(numberMemes > 0 && numberMemes < nTilesAcross* nTilesDown);
@@ -91,9 +108,27 @@ void MemeField::OnRevealClick(const Vei2& screenPos)
 	{
 		Vei2 gridPos = ScreenToGrid(screenPos);
 		Tile& tile = TileAt(gridPos);
-		if (!tile.IsRevealed())
+		if (!tile.IsRevealed() && !tile.IsFlagged())
 		{
 			tile.Reveal();
+		}
+	}
+}
+
+void MemeField::OnFlagClick(const Vei2& screenPos)
+{
+	if (screenPos.x >= 0 && screenPos.x <= nTilesAcross * SpriteCodex::tileSize &&
+		screenPos.y >= 0 && screenPos.y <= nTilesDown * SpriteCodex::tileSize)
+	{
+		Vei2 gridPos = ScreenToGrid(screenPos);
+		Tile& tile = TileAt(gridPos);
+		if (!tile.IsFlagged() && !tile.IsRevealed())
+		{
+			tile.ToggleFlag();
+		}
+		else if(tile.IsFlagged())
+		{
+			tile.UntoggleFlag();
 		}
 	}
 }

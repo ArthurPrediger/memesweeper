@@ -20,6 +20,9 @@ private:
 		void SpawnMeme();
 		void Reveal();
 		bool IsRevealed() const;
+		void ToggleFlag();
+		void UntoggleFlag();
+		bool IsFlagged() const;
 	private:
 		State state = State::Hidden;
 		bool hasMeme = false;
@@ -28,6 +31,7 @@ public:
 	MemeField(int numberMemes);
 	void Draw(Graphics& gfx) const;
 	void OnRevealClick(const Vei2& screenPos);
+	void OnFlagClick(const Vei2& screenPos);
 private:
 	Tile& TileAt(const Vei2& gridPos);
 	RectI GetRect() const;
