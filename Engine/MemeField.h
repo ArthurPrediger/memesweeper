@@ -18,16 +18,20 @@ private:
 		void Draw(const Vei2& screenPos, Graphics& gfx) const;
 		bool HasMeme();
 		void SpawnMeme();
+		void Reveal();
+		bool IsRevealed() const;
 	private:
 		State state = State::Hidden;
 		bool hasMeme = false;
 	};
 public:
 	MemeField(int numberMemes);
-	void Draw(Graphics& gfx) const ;
+	void Draw(Graphics& gfx) const;
+	void OnRevealClick(const Vei2& screenPos);
 private:
 	Tile& TileAt(const Vei2& gridPos);
 	RectI GetRect() const;
+	Vei2 ScreenToGrid(const Vei2& screenPos);
 private:
 	static constexpr int nTilesAcross = 20;
 	static constexpr int nTilesDown = 16;
