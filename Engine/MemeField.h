@@ -23,15 +23,18 @@ private:
 		void ToggleFlag();
 		void UntoggleFlag();
 		bool IsFlagged() const;
+		void SetNNeighborMemes(const int memeCount);
 	private:
 		State state = State::Hidden;
 		bool hasMeme = false;
+		int nNeighborMemes = -1;
 	};
 public:
 	MemeField(int numberMemes);
 	void Draw(Graphics& gfx) const;
 	void OnRevealClick(const Vei2& screenPos);
 	void OnFlagClick(const Vei2& screenPos);
+	int CountNeighborMemes(const Vei2& gridPos);
 private:
 	Tile& TileAt(const Vei2& gridPos);
 	RectI GetRect() const;

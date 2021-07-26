@@ -18,7 +18,37 @@ void MemeField::Tile::Draw(const Vei2& screenPos, Graphics& gfx) const
 	case State::Revealed:
 		if (!hasMeme)
 		{
-			SpriteCodex::DrawTile0(screenPos, gfx);
+			switch (nNeighborMemes)
+			{
+			case 0:
+				SpriteCodex::DrawTile0(screenPos, gfx);
+				break;
+			case 1:
+				SpriteCodex::DrawTile1(screenPos, gfx);
+				break;
+			case 2:
+				SpriteCodex::DrawTile2(screenPos, gfx);
+				break;
+			case 3:
+				SpriteCodex::DrawTile3(screenPos, gfx);
+				break;
+			case 4:
+				SpriteCodex::DrawTile4(screenPos, gfx);
+				break;
+			case 5:
+				SpriteCodex::DrawTile5(screenPos, gfx);
+				break;
+			case 6:
+				SpriteCodex::DrawTile6(screenPos, gfx);
+				break;
+			case 7:
+				SpriteCodex::DrawTile7(screenPos, gfx);
+				break;
+			case 8:
+				SpriteCodex::DrawTile8(screenPos, gfx);
+				break;
+			}
+
 		}
 		else
 		{
@@ -68,6 +98,12 @@ bool MemeField::Tile::IsFlagged() const
 	return state == State::Flagged;
 }
 
+void MemeField::Tile::SetNNeighborMemes(const int memeCount)
+{
+	assert(nNeighborMemes == -1);
+	nNeighborMemes = memeCount;
+}
+
 MemeField::MemeField(int numberMemes)
 {
 	assert(numberMemes > 0 && numberMemes < nTilesAcross* nTilesDown);
@@ -85,6 +121,14 @@ MemeField::MemeField(int numberMemes)
 		} while ( TileAt(spawnPos).HasMeme() );	
 
 		TileAt(spawnPos).SpawnMeme();
+	}
+
+	for (int x = 0; x < nTilesAcross; x++)
+	{
+		for (int y = 0; y < nTilesDown; y++)
+		{
+			TileAt(Vei2{ x, y }).SetNNeighborMemes(CountNeighborMemes(Vei2{ x, y }));
+		}
 	}
 }
 
@@ -131,6 +175,29 @@ void MemeField::OnFlagClick(const Vei2& screenPos)
 			tile.UntoggleFlag();
 		}
 	}
+}
+
+int MemeField::CountNeighborMemes(const Vei2& gridPos)
+{
+	const int xStart = std::max(0, gridPos.x - 1);
+	const int yStart = std::max(0, gridPos.y - 1);
+	const int xEnd = std::min(nTilesAcross - 1, gridPos.x + 1);
+	const int yEnd = std::min(nTilesDown - 1, gridPos.y + 1);
+
+	int count = 0;
+
+	for (int x = xStart; x <= xEnd; x++)
+	{
+		for (int y = yStart; y <= yEnd; y++)
+		{
+			if (TileAt(Vei2{ x, y }).HasMeme())
+			{
+				count++;
+			}
+		}
+	}
+
+	return count;
 }
 
 MemeField::Tile& MemeField::TileAt(const Vei2& gridPos)
