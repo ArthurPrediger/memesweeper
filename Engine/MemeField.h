@@ -15,7 +15,7 @@ private:
 			Revealed
 		};
 	public:
-		void Draw(const Vei2& screenPos, Graphics& gfx) const;
+		void Draw(const Vei2& screenPos, Graphics& gfx, bool fucked) const;
 		bool HasMeme();
 		void SpawnMeme();
 		void Reveal();
@@ -43,4 +43,5 @@ private:
 	static constexpr int nTilesAcross = 20;
 	static constexpr int nTilesDown = 16;
 	Tile field[nTilesAcross * nTilesDown];
+	bool isFucked = false;
 };

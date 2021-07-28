@@ -4,57 +4,68 @@
 #include <assert.h>
 #include <random>
 
-void MemeField::Tile::Draw(const Vei2& screenPos, Graphics& gfx) const
+void MemeField::Tile::Draw(const Vei2& screenPos, Graphics& gfx, bool fucked) const
 {
-	switch (state)
+	if (!fucked)
 	{
-	case State::Hidden:
-		SpriteCodex::DrawTileButton(screenPos, gfx);
-		break;
-	case State::Flagged:
-		SpriteCodex::DrawTileButton(screenPos, gfx);
-		SpriteCodex::DrawTileFlag(screenPos, gfx);
-		break;
-	case State::Revealed:
-		if (!hasMeme)
+		switch (state)
 		{
-			switch (nNeighborMemes)
+		case State::Hidden:
+			SpriteCodex::DrawTileButton(screenPos, gfx);
+			break;
+		case State::Flagged:
+			SpriteCodex::DrawTileButton(screenPos, gfx);
+			SpriteCodex::DrawTileFlag(screenPos, gfx);
+			break;
+		case State::Revealed:
+			if (!hasMeme)
 			{
-			case 0:
-				SpriteCodex::DrawTile0(screenPos, gfx);
-				break;
-			case 1:
-				SpriteCodex::DrawTile1(screenPos, gfx);
-				break;
-			case 2:
-				SpriteCodex::DrawTile2(screenPos, gfx);
-				break;
-			case 3:
-				SpriteCodex::DrawTile3(screenPos, gfx);
-				break;
-			case 4:
-				SpriteCodex::DrawTile4(screenPos, gfx);
-				break;
-			case 5:
-				SpriteCodex::DrawTile5(screenPos, gfx);
-				break;
-			case 6:
-				SpriteCodex::DrawTile6(screenPos, gfx);
-				break;
-			case 7:
-				SpriteCodex::DrawTile7(screenPos, gfx);
-				break;
-			case 8:
-				SpriteCodex::DrawTile8(screenPos, gfx);
-				break;
+				SpriteCodex::DrawTileNumber(screenPos, gfx, nNeighborMemes);
 			}
-
+			else
+			{
+				SpriteCodex::DrawTileBomb(screenPos, gfx);
+			}
+			break;
 		}
-		else
+	}
+	else
+	{
+		switch (state)
 		{
-			SpriteCodex::DrawTileBomb(screenPos, gfx);
+		case State::Hidden:
+			if (hasMeme)
+			{
+				SpriteCodex::DrawTileBomb(screenPos, gfx);
+			}
+			else
+			{
+				SpriteCodex::DrawTileButton(screenPos, gfx);
+			}
+			break;
+		case State::Flagged:
+			if (hasMeme)
+			{
+				SpriteCodex::DrawTileBomb(screenPos, gfx);
+				SpriteCodex::DrawTileFlag(screenPos, gfx);
+			}
+			else
+			{
+				SpriteCodex::DrawTileBomb(screenPos, gfx);
+				SpriteCodex::DrawTileCross(screenPos, gfx);
+			}
+			break;
+		case State::Revealed:
+			if (!hasMeme)
+			{
+				SpriteCodex::DrawTileNumber(screenPos, gfx, nNeighborMemes);
+			}
+			else
+			{
+				SpriteCodex::DrawTileBombRed(screenPos, gfx);
+			}
+			break;
 		}
-		break;
 	}
 
 }
@@ -140,7 +151,7 @@ void MemeField::Draw(Graphics& gfx) const
 	{
 		for (int y = 0; y < nTilesDown; y++)
 		{
-			field[y * nTilesAcross + x].Draw(Vei2(x * SpriteCodex::tileSize,y * SpriteCodex::tileSize), gfx);
+			field[y * nTilesAcross + x].Draw(Vei2(x * SpriteCodex::tileSize,y * SpriteCodex::tileSize), gfx, isFucked);
 		}
 	}
 }
@@ -155,6 +166,11 @@ void MemeField::OnRevealClick(const Vei2& screenPos)
 		if (!tile.IsRevealed() && !tile.IsFlagged())
 		{
 			tile.Reveal();
+			
+			if (tile.HasMeme())
+			{
+				isFucked = true;
+			}
 		}
 	}
 }

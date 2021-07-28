@@ -1474,3 +1474,38 @@ void SpriteCodex::DrawTileBombRed( const Vei2& pos,Graphics& gfx )
 	gfx.PutPixel( 14 + pos.x,15 + pos.y,255,0,0 );
 	gfx.PutPixel( 15 + pos.x,15 + pos.y,255,0,0 );
 }
+
+void SpriteCodex::DrawTileNumber(const Vei2& screenPos, Graphics& gfx, int nNeighborMemes)
+{
+	assert(nNeighborMemes >= 0 && nNeighborMemes < 9);
+	switch (nNeighborMemes)
+	{
+	case 0:
+		SpriteCodex::DrawTile0(screenPos, gfx);
+		break;
+	case 1:
+		SpriteCodex::DrawTile1(screenPos, gfx);
+		break;
+	case 2:
+		SpriteCodex::DrawTile2(screenPos, gfx);
+		break;
+	case 3:
+		SpriteCodex::DrawTile3(screenPos, gfx);
+		break;
+	case 4:
+		SpriteCodex::DrawTile4(screenPos, gfx);
+		break;
+	case 5:
+		SpriteCodex::DrawTile5(screenPos, gfx);
+		break;
+	case 6:
+		SpriteCodex::DrawTile6(screenPos, gfx);
+		break;
+	case 7:
+		SpriteCodex::DrawTile7(screenPos, gfx);
+		break;
+	case 8:
+		SpriteCodex::DrawTile8(screenPos, gfx);
+		break;
+	}
+}
