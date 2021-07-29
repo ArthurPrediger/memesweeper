@@ -115,7 +115,9 @@ void MemeField::Tile::SetNNeighborMemes(const int memeCount)
 	nNeighborMemes = memeCount;
 }
 
-MemeField::MemeField(int numberMemes)
+MemeField::MemeField(const Vei2& center, int numberMemes)
+	:
+	fieldTopLeft(center - Vei2(nTilesAcross * SpriteCodex::tileSize, nTilesDown * SpriteCodex::tileSize) / 2)
 {
 	assert(numberMemes > 0 && numberMemes < nTilesAcross* nTilesDown);
 	std::random_device rd;
@@ -151,15 +153,16 @@ void MemeField::Draw(Graphics& gfx) const
 	{
 		for (int y = 0; y < nTilesDown; y++)
 		{
-			field[y * nTilesAcross + x].Draw(Vei2(x * SpriteCodex::tileSize,y * SpriteCodex::tileSize), gfx, isFucked);
+			field[y * nTilesAcross + x].Draw(Vei2(x * SpriteCodex::tileSize,y * SpriteCodex::tileSize) + fieldTopLeft, gfx, isFucked);
 		}
 	}
 }
 
 void MemeField::OnRevealClick(const Vei2& screenPos)
 {
-	if (screenPos.x >= 0 && screenPos.x <= nTilesAcross * SpriteCodex::tileSize &&
-		screenPos.y >= 0 && screenPos.y <= nTilesDown * SpriteCodex::tileSize)
+	if (screenPos.x >= fieldTopLeft.x && screenPos.x <= nTilesAcross * SpriteCodex::tileSize + fieldTopLeft.x &&
+		screenPos.y >= fieldTopLeft.y && screenPos.y <= nTilesDown * SpriteCodex::tileSize + fieldTopLeft.y &&
+		!isFucked)
 	{
 		Vei2 gridPos = ScreenToGrid(screenPos);
 		Tile& tile = TileAt(gridPos);
@@ -177,8 +180,9 @@ void MemeField::OnRevealClick(const Vei2& screenPos)
 
 void MemeField::OnFlagClick(const Vei2& screenPos)
 {
-	if (screenPos.x >= 0 && screenPos.x <= nTilesAcross * SpriteCodex::tileSize &&
-		screenPos.y >= 0 && screenPos.y <= nTilesDown * SpriteCodex::tileSize)
+	if (screenPos.x >= fieldTopLeft.x && screenPos.x <= nTilesAcross * SpriteCodex::tileSize + fieldTopLeft.x &&
+		screenPos.y >= fieldTopLeft.y && screenPos.y <= nTilesDown * SpriteCodex::tileSize + fieldTopLeft.y &&
+		!isFucked)
 	{
 		Vei2 gridPos = ScreenToGrid(screenPos);
 		Tile& tile = TileAt(gridPos);
@@ -223,10 +227,10 @@ MemeField::Tile& MemeField::TileAt(const Vei2& gridPos)
 
 RectI MemeField::GetRect() const
 {
-	return RectI(0, nTilesAcross * SpriteCodex::tileSize, 0, nTilesDown * SpriteCodex::tileSize);
+	return RectI(fieldTopLeft, nTilesAcross * SpriteCodex::tileSize, nTilesDown * SpriteCodex::tileSize);
 }
 
 Vei2 MemeField::ScreenToGrid(const Vei2& screenPos)
 {
-	return screenPos / SpriteCodex::tileSize;
+	return (screenPos - fieldTopLeft) / SpriteCodex::tileSize;
 }
