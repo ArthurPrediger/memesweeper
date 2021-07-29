@@ -147,8 +147,9 @@ MemeField::MemeField(const Vei2& center, int numberMemes)
 
 void MemeField::Draw(Graphics& gfx) const
 {
+	DrawBorder(gfx);
 	gfx.DrawRect(GetRect(), SpriteCodex::baseColor);
-
+	
 	for (int x = 0; x < nTilesAcross; x++)
 	{
 		for (int y = 0; y < nTilesDown; y++)
@@ -233,4 +234,14 @@ RectI MemeField::GetRect() const
 Vei2 MemeField::ScreenToGrid(const Vei2& screenPos)
 {
 	return (screenPos - fieldTopLeft) / SpriteCodex::tileSize;
+}
+
+void MemeField::DrawBorder(Graphics& gfx) const
+{
+	int fieldRight = nTilesAcross * SpriteCodex::tileSize + fieldTopLeft.x;
+	int fieldBottom = nTilesDown * SpriteCodex::tileSize + fieldTopLeft.y;
+	gfx.DrawRect(fieldTopLeft.x, fieldTopLeft.y - borderThickness, fieldRight, fieldTopLeft.y, borderColor);
+	gfx.DrawRect(fieldTopLeft.x, fieldBottom, fieldRight, fieldBottom + borderThickness, borderColor);
+	gfx.DrawRect(fieldTopLeft.x - borderThickness, fieldTopLeft.y - borderThickness, fieldTopLeft.x, fieldBottom + borderThickness, borderColor);
+	gfx.DrawRect(fieldRight, fieldTopLeft.y - borderThickness, fieldRight + borderThickness, fieldBottom + borderThickness, borderColor);
 }

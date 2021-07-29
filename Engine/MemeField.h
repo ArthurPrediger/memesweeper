@@ -39,10 +39,13 @@ private:
 	Tile& TileAt(const Vei2& gridPos);
 	RectI GetRect() const;
 	Vei2 ScreenToGrid(const Vei2& screenPos);
+	void DrawBorder(Graphics& gfx) const;
 private:
 	Vei2 fieldTopLeft;
 	static constexpr int nTilesAcross = 20;
 	static constexpr int nTilesDown = 16;
+	static constexpr int borderThickness = 10;
+	static constexpr Color borderColor = Colors::Blue;
 	Tile field[nTilesAcross * nTilesDown];
 	bool isFucked = false;
 };
