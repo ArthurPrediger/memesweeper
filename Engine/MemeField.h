@@ -1,9 +1,17 @@
 #pragma once
 #include "Graphics.h"
 #include "RectI.h"
+#include "Sound.h"
 
 class MemeField
 {
+public:
+	enum class PlayerState
+	{
+		Fucked,
+		Winner,
+		Memeing
+	};
 private:
 	class Tile
 	{
@@ -15,8 +23,8 @@ private:
 			Revealed
 		};
 	public:
-		void Draw(const Vei2& screenPos, Graphics& gfx, bool fucked) const;
-		bool HasMeme();
+		void Draw(const Vei2& screenPos, Graphics& gfx, const PlayerState playerState) const;
+		bool HasMeme() const;
 		void SpawnMeme();
 		void Reveal();
 		bool IsRevealed() const;
@@ -30,22 +38,26 @@ private:
 		int nNeighborMemes = -1;
 	};
 public:
-	MemeField(const Vei2& center, int numberMemes);
+	MemeField(const Vei2& center);
 	void Draw(Graphics& gfx) const;
 	void OnRevealClick(const Vei2& screenPos);
 	void OnFlagClick(const Vei2& screenPos);
 	int CountNeighborMemes(const Vei2& gridPos);
+	bool GameIsWon();
 private:
 	Tile& TileAt(const Vei2& gridPos);
 	RectI GetRect() const;
 	Vei2 ScreenToGrid(const Vei2& screenPos);
 	void DrawBorder(Graphics& gfx) const;
+	PlayerState GetPlayerState() const;
 private:
 	Vei2 fieldTopLeft;
-	static constexpr int nTilesAcross = 20;
-	static constexpr int nTilesDown = 16;
+	static constexpr int nTilesAcross = 4;
+	static constexpr int nTilesDown = 3;
+	static constexpr int numberMemes = 2;
 	static constexpr int borderThickness = 10;
 	static constexpr Color borderColor = Colors::Blue;
 	Tile field[nTilesAcross * nTilesDown];
-	bool isFucked = false;
+	PlayerState playerState = PlayerState::Memeing;
+	Sound playerFuckedSound = Sound(L"spayed.wav");
 };

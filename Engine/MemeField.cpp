@@ -4,9 +4,9 @@
 #include <assert.h>
 #include <random>
 
-void MemeField::Tile::Draw(const Vei2& screenPos, Graphics& gfx, bool fucked) const
+void MemeField::Tile::Draw(const Vei2& screenPos, Graphics& gfx, const PlayerState playerState) const
 {
-	if (!fucked)
+	if (playerState == PlayerState::Memeing)
 	{
 		switch (state)
 		{
@@ -70,7 +70,7 @@ void MemeField::Tile::Draw(const Vei2& screenPos, Graphics& gfx, bool fucked) co
 
 }
 
-bool MemeField::Tile::HasMeme()
+bool MemeField::Tile::HasMeme() const
 {
 	return hasMeme;
 }
@@ -115,7 +115,7 @@ void MemeField::Tile::SetNNeighborMemes(const int memeCount)
 	nNeighborMemes = memeCount;
 }
 
-MemeField::MemeField(const Vei2& center, int numberMemes)
+MemeField::MemeField(const Vei2& center)
 	:
 	fieldTopLeft(center - Vei2(nTilesAcross * SpriteCodex::tileSize, nTilesDown * SpriteCodex::tileSize) / 2)
 {
@@ -154,7 +154,7 @@ void MemeField::Draw(Graphics& gfx) const
 	{
 		for (int y = 0; y < nTilesDown; y++)
 		{
-			field[y * nTilesAcross + x].Draw(Vei2(x * SpriteCodex::tileSize,y * SpriteCodex::tileSize) + fieldTopLeft, gfx, isFucked);
+			field[y * nTilesAcross + x].Draw(Vei2(x * SpriteCodex::tileSize,y * SpriteCodex::tileSize) + fieldTopLeft, gfx, playerState);
 		}
 	}
 }
@@ -163,7 +163,7 @@ void MemeField::OnRevealClick(const Vei2& screenPos)
 {
 	if (screenPos.x >= fieldTopLeft.x && screenPos.x <= nTilesAcross * SpriteCodex::tileSize + fieldTopLeft.x &&
 		screenPos.y >= fieldTopLeft.y && screenPos.y <= nTilesDown * SpriteCodex::tileSize + fieldTopLeft.y &&
-		!isFucked)
+		playerState == PlayerState::Memeing)
 	{
 		Vei2 gridPos = ScreenToGrid(screenPos);
 		Tile& tile = TileAt(gridPos);
@@ -173,7 +173,8 @@ void MemeField::OnRevealClick(const Vei2& screenPos)
 			
 			if (tile.HasMeme())
 			{
-				isFucked = true;
+				playerState = PlayerState::Fucked;
+				playerFuckedSound.Play();
 			}
 		}
 	}
@@ -183,7 +184,7 @@ void MemeField::OnFlagClick(const Vei2& screenPos)
 {
 	if (screenPos.x >= fieldTopLeft.x && screenPos.x <= nTilesAcross * SpriteCodex::tileSize + fieldTopLeft.x &&
 		screenPos.y >= fieldTopLeft.y && screenPos.y <= nTilesDown * SpriteCodex::tileSize + fieldTopLeft.y &&
-		!isFucked)
+		playerState == PlayerState::Memeing)
 	{
 		Vei2 gridPos = ScreenToGrid(screenPos);
 		Tile& tile = TileAt(gridPos);
@@ -245,3 +246,24 @@ void MemeField::DrawBorder(Graphics& gfx) const
 	gfx.DrawRect(fieldTopLeft.x - borderThickness, fieldTopLeft.y - borderThickness, fieldTopLeft.x, fieldBottom + borderThickness, borderColor);
 	gfx.DrawRect(fieldRight, fieldTopLeft.y - borderThickness, fieldRight + borderThickness, fieldBottom + borderThickness, borderColor);
 }
+
+bool MemeField::GameIsWon()
+{
+	for (const Tile& t : field)
+	{
+		if (t.HasMeme() && !t.IsFlagged() ||
+			!t.HasMeme() && !t.IsRevealed())
+		{
+			return false;
+		}
+	}
+	playerState = PlayerState::Winner;
+	return true;
+}
+
+MemeField::PlayerState MemeField::GetPlayerState() const
+{
+	return playerState;
+}
+
+
