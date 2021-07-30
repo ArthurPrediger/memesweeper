@@ -115,6 +115,11 @@ void MemeField::Tile::SetNNeighborMemes(const int memeCount)
 	nNeighborMemes = memeCount;
 }
 
+bool MemeField::Tile::HasNoNeighborMemes() const
+{
+	return nNeighborMemes == 0;
+}
+
 MemeField::MemeField(const Vei2& center)
 	:
 	fieldTopLeft(center - Vei2(nTilesAcross * SpriteCodex::tileSize, nTilesDown * SpriteCodex::tileSize) / 2)
@@ -165,18 +170,23 @@ void MemeField::OnRevealClick(const Vei2& screenPos)
 		screenPos.y >= fieldTopLeft.y && screenPos.y <= nTilesDown * SpriteCodex::tileSize + fieldTopLeft.y &&
 		playerState == PlayerState::Memeing)
 	{
-		Vei2 gridPos = ScreenToGrid(screenPos);
+		Vei2 gridPos = ScreenToGrid(screenPos);	
 		Tile& tile = TileAt(gridPos);
-		if (!tile.IsRevealed() && !tile.IsFlagged())
+		if (!tile.IsRevealed() && !tile.IsFlagged() && tile.HasMeme())
 		{
 			tile.Reveal();
-			
-			if (tile.HasMeme())
-			{
-				playerState = PlayerState::Fucked;
-				playerFuckedSound.Play();
-			}
+			playerState = PlayerState::Fucked;
+			playerFuckedSound.Play();
 		}
+		else 
+		{
+			RevealTile(gridPos);
+		}
+		if (GameIsWon())
+		{
+			playerState = PlayerState::Winner;
+		}
+	
 	}
 }
 
@@ -247,7 +257,7 @@ void MemeField::DrawBorder(Graphics& gfx) const
 	gfx.DrawRect(fieldRight, fieldTopLeft.y - borderThickness, fieldRight + borderThickness, fieldBottom + borderThickness, borderColor);
 }
 
-bool MemeField::GameIsWon()
+bool MemeField::GameIsWon() const 
 {
 	for (const Tile& t : field)
 	{
@@ -257,8 +267,32 @@ bool MemeField::GameIsWon()
 			return false;
 		}
 	}
-	playerState = PlayerState::Winner;
 	return true;
+}
+
+void MemeField::RevealTile(const Vei2& gridPos)
+{
+	Tile& tile = TileAt(gridPos);
+	if (!tile.IsRevealed() && !tile.IsFlagged())
+	{
+		tile.Reveal();
+
+		if (tile.HasNoNeighborMemes())
+		{
+			const int xStart = std::max(0, gridPos.x - 1);
+			const int yStart = std::max(0, gridPos.y - 1);
+			const int xEnd = std::min(nTilesAcross - 1, gridPos.x + 1);
+			const int yEnd = std::min(nTilesDown - 1, gridPos.y + 1);
+
+			for (int x = xStart; x <= xEnd; x++)
+			{
+				for (int y = yStart; y <= yEnd; y++)
+				{
+					RevealTile(Vei2(x, y));
+				}
+			}
+		}
+	}
 }
 
 MemeField::PlayerState MemeField::GetPlayerState() const

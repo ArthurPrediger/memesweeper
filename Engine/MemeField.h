@@ -32,6 +32,7 @@ private:
 		void UntoggleFlag();
 		bool IsFlagged() const;
 		void SetNNeighborMemes(const int memeCount);
+		bool HasNoNeighborMemes() const;
 	private:
 		State state = State::Hidden;
 		bool hasMeme = false;
@@ -43,18 +44,19 @@ public:
 	void OnRevealClick(const Vei2& screenPos);
 	void OnFlagClick(const Vei2& screenPos);
 	int CountNeighborMemes(const Vei2& gridPos);
-	bool GameIsWon();
+	PlayerState GetPlayerState() const;
 private:
 	Tile& TileAt(const Vei2& gridPos);
 	RectI GetRect() const;
 	Vei2 ScreenToGrid(const Vei2& screenPos);
 	void DrawBorder(Graphics& gfx) const;
-	PlayerState GetPlayerState() const;
+	bool GameIsWon() const;
+	void RevealTile(const Vei2& gridPos);
 private:
 	Vei2 fieldTopLeft;
-	static constexpr int nTilesAcross = 4;
-	static constexpr int nTilesDown = 3;
-	static constexpr int numberMemes = 2;
+	static constexpr int nTilesAcross = 20;
+	static constexpr int nTilesDown = 16;
+	static constexpr int numberMemes = 20;
 	static constexpr int borderThickness = 10;
 	static constexpr Color borderColor = Colors::Blue;
 	Tile field[nTilesAcross * nTilesDown];
