@@ -37,6 +37,7 @@ private:
 public:
 	Game( class MainWindow& wnd );
 	Game( const Game& ) = delete;
+	~Game();
 	Game& operator=( const Game& ) = delete;
 	void Go();
 private:
@@ -44,13 +45,22 @@ private:
 	void UpdateModel();
 	/********************************/
 	/*  User Functions              */
+	void CreateMemeField(int width, int height, int numMemes)
+	{
+		pField = new MemeField(gfx.GetRect().GetCenter(), numMemes, width, height);
+	};
+	void DestroyMemeField()
+	{
+		delete pField;
+		pField = nullptr;
+	};
 	/********************************/
 private:
 	MainWindow& wnd;
 	Graphics gfx;
 	/********************************/
 	/*  User Variables              */
-	MemeField field;
+	MemeField* pField = nullptr;
 	SelectionMenu menu;
 	State state = State::SelectionMenu;
 	/********************************/

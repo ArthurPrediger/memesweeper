@@ -2,6 +2,7 @@
 
 #include "Graphics.h"
 #include "Sound.h"
+#include "SelectionMenu.h"
 
 class MemeField
 {
@@ -38,7 +39,8 @@ private:
 		int nNeighborMemes = -1;
 	};
 public:
-	MemeField( const Vei2& center,int nMemes );
+	MemeField( const Vei2& center,int nMemes, int width, int height);
+	~MemeField();
 	void Draw( Graphics& gfx ) const;
 	RectI GetRect() const;
 	void OnRevealClick( const Vei2& screenPos );
@@ -52,12 +54,12 @@ private:
 	int CountNeighborMemes( const Vei2& gridPos );
 	bool GameIsWon() const;
 private:
-	static constexpr int width = 8;
-	static constexpr int height = 6;
+	int width;
+	int height;
 	static constexpr int borderThickness = 10;
 	static constexpr Color borderColor = Colors::Blue;
 	Sound sndLose = Sound( L"spayed.wav" );
 	Vei2 topLeft;
 	State state = State::Memeing;
-	Tile field[width * height];
+	Tile* field = nullptr;
 };

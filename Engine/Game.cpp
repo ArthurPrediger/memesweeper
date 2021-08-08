@@ -26,9 +26,13 @@ Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
 	gfx( wnd ),
-	menu( { gfx.GetRect().GetCenter().x,200 } ),
-	field( gfx.GetRect().GetCenter(),4 )
+	menu( { gfx.GetRect().GetCenter().x,200 } )
 {
+}
+
+Game::~Game()
+{
+	DestroyMemeField();
 }
 
 void Game::Go()
@@ -46,23 +50,31 @@ void Game::UpdateModel()
 		const auto e = wnd.mouse.Read();
 		if( state == State::Memesweeper )
 		{
-			if( field.GetState() == MemeField::State::Memeing )
+			if( pField->GetState() == MemeField::State::Memeing )
 			{
 				if( e.GetType() == Mouse::Event::Type::LPress )
 				{
 					const Vei2 mousePos = e.GetPos();
-					if( field.GetRect().Contains( mousePos ) )
+					if( pField->GetRect().Contains( mousePos ) )
 					{
-						field.OnRevealClick( mousePos );
+						pField->OnRevealClick( mousePos );
 					}
 				}
 				else if( e.GetType() == Mouse::Event::Type::RPress )
 				{
 					const Vei2 mousePos = e.GetPos();
-					if( field.GetRect().Contains( mousePos ) )
+					if( pField->GetRect().Contains( mousePos ) )
 					{
-						field.OnFlagClick( mousePos );
+						pField->OnFlagClick( mousePos );
 					}
+				}
+			}
+			else
+			{
+				if (e.GetType() == Mouse::Event::Type::LPress)
+				{
+					DestroyMemeField();
+					state = State::SelectionMenu;
 				}
 			}
 		}
@@ -72,9 +84,18 @@ void Game::UpdateModel()
 			switch( s )
 			{
 			case SelectionMenu::Size::Small:
+				CreateMemeField(7, 5, 7);
+				state = State::Memesweeper;;
+				break;
 			case SelectionMenu::Size::Medium:
+				CreateMemeField(14, 10, 25);
+				state = State::Memesweeper;;
+				break;
 			case SelectionMenu::Size::Large:
-				state = State::Memesweeper;
+				CreateMemeField(21, 16, 50);
+				state = State::Memesweeper;;
+				break;
+				
 			}
 		}
 	}
@@ -84,8 +105,8 @@ void Game::ComposeFrame()
 {
 	if( state == State::Memesweeper )
 	{
-		field.Draw( gfx );
-		if( field.GetState() == MemeField::State::Winrar )
+		pField->Draw( gfx );
+		if( pField->GetState() == MemeField::State::Winrar )
 		{
 			SpriteCodex::DrawWin( gfx.GetRect().GetCenter(),gfx );
 		}
